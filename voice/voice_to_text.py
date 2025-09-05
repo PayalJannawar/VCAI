@@ -26,3 +26,4 @@ def transcribe_audio(filename="input.wav"):
 if __name__ == "__main__":
     record_audio("input.wav", duration=5)   # record for 5 seconds
     transcribe_audio("input.wav")
+
