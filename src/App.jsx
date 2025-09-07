@@ -1,61 +1,178 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
+import { Mic } from "lucide-react";
+import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
+import ReactDiffViewer from "react-diff-viewer";
 
-export default function App() {
-  const [code, setCode] = useState("// Write your JavaScript code here...");
-  const [output, setOutput] = useState("");
-
-const runCode = () => {
-  const logs = [];
-  const originalLog = console.log;
-  console.log = (...args) => {
-    logs.push(args.join(" "));
-    originalLog(...args);
-  };
-
-  try {
-    // eslint-disable-next-line no-eval
-    // Evaluate the code entered by the user
-    // Use Function constructor to provide a safer scope than eval
-    // eslint-disable-next-line no-new-func
-    new Function(code)();
-    setOutput(logs.length > 0 ? logs.join("\n") : "No output");
-  } catch (error) {
-    setOutput(error.toString());
-  }
-
-  console.log = originalLog; // Restore original console.log
-};
-
-
+// Editor panel
+function EditorPanel({ code, setCode }) {
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col items-center p-6">
-      <h1 className="text-3xl font-bold mb-6">Online Code Editor</h1>
-      
-      {/* Code Editor */}
-      <div className="w-full max-w-4xl h-[400px] border rounded-lg shadow-lg overflow-hidden">
-        <Editor
-          height="100%"
-          language="javascript"
-          value={code}
-          onChange={(value) => setCode(value || "")}
-          theme="vs-dark"
-        />
-      </div>
+    <Editor
+      height="300px"
+      defaultLanguage="javascript"
+      value={code}
+      onChange={(value) => setCode(value || "")}
+      theme="vs-dark"
+    />
+  );
+}
 
-      {/* Run Button */}
-      <button
-        onClick={runCode}
-        className="mt-4 px-6 py-2 bg-blue-500 text-white rounded-lg shadow hover:bg-blue-600 transition"
-      >
-        Run Code
-      </button>
+// Mic controls
+function MicControls({ listening, toggleMic }) {
+  return (
+    <button
+      onClick={toggleMic}
+      className={`px-4 py-2 rounded flex items-center gap-2 ${
+        listening ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
+      } text-white`}
+    >
+      <Mic size={18} />
+      {listening ? "Stop" : "Speak"}
+    </button>
+  );
+}
 
-      {/* Output Box */}
-      <div className="w-full max-w-4xl bg-white mt-6 p-4 border rounded-lg shadow">
-        <h2 className="text-xl font-semibold mb-2">Output:</h2>
-        <pre className="text-gray-800">{output}</pre>
+// Transcript panel
+function TranscriptPanel({ transcript }) {
+  return (
+    <div className="mt-4">
+      <h2 className="font-semibold">Transcript:</h2>
+      <p className="bg-gray-100 p-2 rounded min-h-[40px] overflow-auto">
+        {transcript || "Say something..."}
+      </p>
+    </div>
+  );
+}
+
+// Diff panel
+function DiffPanel({ oldCode, newCode }) {
+  return (
+    <div className="mt-4">
+      <h2 className="font-semibold">AI Output (Diff View):</h2>
+      <div className="bg-gray-100 p-2 rounded min-h-[100px] overflow-auto">
+        <ReactDiffViewer oldValue={oldCode} newValue={newCode} splitView={true} />
       </div>
     </div>
   );
 }
+
+function App() {
+  const [code, setCode] = useState("// Write your code here");
+  const [backendResult, setBackendResult] = useState("// AI output will appear here");
+  const [listening, setListening] = useState(false);
+  const [audioPlaying, setAudioPlaying] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [statusMessage, setStatusMessage] = useState("");
+
+  const audioRef = useRef(null);
+  const { transcript, resetTranscript } = useSpeechRecognition();
+  const lastTranscriptRef = useRef("");
+
+  if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
+    return <span>Your browser does not support speech recognition.</span>;
+  }
+
+  // Mock backend
+  const sendToBackend = async (codeText) => {
+    setLoading(true);
+    setStatusMessage("AI is running...");
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        const edited = codeText.split("\n").reverse().join("\n"); // dummy AI edit
+        const audioURL = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
+        resolve({ editedCode: edited, audioURL });
+        setLoading(false);
+        setStatusMessage("");
+      }, 1000);
+    });
+  };
+
+  const runAI = async () => {
+    if (!code) return;
+    setLoading(true);
+    setStatusMessage("Running AI...");
+    const result = await sendToBackend(code);
+
+    if (audioRef.current) audioRef.current.pause();
+
+    setBackendResult(result.editedCode);
+
+    audioRef.current = new Audio(result.audioURL);
+    setAudioPlaying(true);
+    setStatusMessage("Playing audio...");
+    audioRef.current.play();
+    audioRef.current.onended = () => {
+      setAudioPlaying(false);
+      setStatusMessage("");
+    };
+    setLoading(false);
+  };
+
+  const toggleMic = () => {
+    if (listening) {
+      SpeechRecognition.stopListening();
+      setListening(false);
+      setStatusMessage("");
+    } else {
+      if (audioRef.current && audioPlaying) {
+        audioRef.current.pause();
+        setAudioPlaying(false);
+      }
+      resetTranscript();
+      lastTranscriptRef.current = "";
+      SpeechRecognition.startListening({ continuous: true, language: "en-US" });
+      setListening(true);
+      setStatusMessage("Listening...");
+    }
+  };
+
+  // Live dictation: append new speech lines to editor
+  useEffect(() => {
+    if (!transcript) return;
+
+    // Detect new words since last update
+    const newPart = transcript.replace(lastTranscriptRef.current, "").trim();
+    if (newPart) {
+      setCode((prev) => (prev === "// Write your code here" ? newPart : prev + "\n" + newPart));
+      lastTranscriptRef.current = transcript;
+    }
+
+    if (transcript.toLowerCase().includes("run code")) {
+      runAI();
+      resetTranscript();
+      lastTranscriptRef.current = "";
+    }
+  }, [transcript]);
+
+  return (
+    <div className="flex flex-col items-center p-4 min-h-screen bg-gray-100">
+      <h1 className="text-2xl font-bold mb-4">Voice Coding Assistant</h1>
+
+      <div className="w-full max-w-4xl bg-white rounded-xl shadow-lg p-4">
+        <EditorPanel code={code} setCode={setCode} />
+
+        <div className="flex gap-2 mt-4">
+          <button
+            onClick={runAI}
+            disabled={loading}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
+          >
+            Run AI
+          </button>
+
+          <MicControls listening={listening} toggleMic={toggleMic} />
+        </div>
+
+        {statusMessage && (
+          <p className="mt-2 text-sm font-medium text-gray-700">{statusMessage}</p>
+        )}
+
+        <TranscriptPanel transcript={transcript} />
+        <DiffPanel oldCode={code} newCode={backendResult} />
+      </div>
+    </div>
+  );
+}
+
+export default App;
+
