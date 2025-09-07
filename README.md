@@ -1,12 +1,24 @@
-# React + Vite
+# Voice Coding Assistant (Frontend)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This repository contains the **frontend code** for the Voice Coding Assistant project (VCAI).  
+It allows users to **write code using voice commands**, see live transcription, and view AI-generated edits in a **diff view**.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Voice-to-Code:** Speak your code and it will appear live in the editor.  
+- **Run AI (Mock):** Press "Run AI" or say "run code" to see AI-generated changes.  
+- **Diff Viewer:** Compare original code with AI-edited code side by side.  
+- **Transcript Panel:** Shows live transcription of your voice commands.  
 
-## Expanding the ESLint configuration
+## Tech Stack
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **React 19** + **Vite**  
+- **Monaco Editor**  
+- **React Diff Viewer**  
+- **react-speech-recognition**  
+- **Tailwind CSS**  
+
+## Notes
+
+- Backend AI integration is still under development. Currently, `Run AI` uses a **mock function** for testing the frontend.  
+- Audio playback is a placeholder and will be replaced with actual TTS from the backend.
