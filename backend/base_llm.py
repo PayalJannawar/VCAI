@@ -78,26 +78,16 @@ class BaseLLM:
             else:
                 raise e
 
-    def generate(self, prompt, max_tokens=200, temperature=0.7, do_sample=True):
-        """Generate text based on the given prompt."""
-        inputs = self.tokenizer(prompt, return_tensors="pt", padding=True, truncation=True)
-        
-        # Generate with better parameters for more coherent output
-        with torch.no_grad():  # Save memory during inference
-            outputs = self.model.generate(
-                **inputs,
-                max_new_tokens=max_tokens,
-                temperature=temperature,
-                do_sample=do_sample,
-                pad_token_id=self.tokenizer.pad_token_id,
-                eos_token_id=self.tokenizer.eos_token_id,
-                no_repeat_ngram_size=2  # Avoid repetition
-            )
-        
-        # Decode only the new tokens (exclude the input prompt)
-        input_length = inputs.input_ids.shape[1]
-        generated_tokens = outputs[0][input_length:]
-        return self.tokenizer.decode(generated_tokens, skip_special_tokens=True)
+        def generate(self, prompt, max_tokens=200):
+            inputs = self.tokenizer(prompt, return_tensors="pt")
+            outputs = self.model.generate(**inputs, max_new_tokens=max_tokens)
+            text = self.tokenizer.decode(outputs[0], skip_special_tokens=True)
+    
+            # Clean output
+            if "```" in text:
+                text = text.split("```")[1]  # extract code between ```
+            return text.strip()
+
     
     def get_model_info(self):
         """Return information about the loaded model."""
