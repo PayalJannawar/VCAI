@@ -11,22 +11,74 @@ def ask_ai(task_type, language, task):
     }
     try:
         response = requests.post(API_URL, json=payload)
-        response.raise_for_status()  # raises an error if status != 200
+        response.raise_for_status()
         data = response.json()
         return data.get("response", "No 'response' key in API reply")
     except Exception as e:
         return f"Error: {str(e)}"
 
-if __name__ == "__main__":
-    print("Welcome to Coding AI CLI!")
+def main():
+    print("🤖 Welcome to Coding AI CLI (Week 3 Version) 🤖")
     while True:
-        task_type = input("Enter task type (e.g., generate_code, explain_code): ")
-        language = input("Enter language (e.g., Python, C++): ")
-        task = input("Enter your task (e.g., reverse a string): ")
+        print("\nChoose a task type:")
+        print("1. Generate Code")
+        print("2. Explain Code")
+        print("3. Debug Code")
+        print("4. Quit")
 
-        answer = ask_ai(task_type, language, task)
-        print(f"\nAI Response:\n{answer}\n")
+        choice = input("Enter choice (1-4): ").strip()
 
-        cont = input("Do you want to continue? (y/n): ")
-        if cont.lower() != "y":
+        if choice == "4":
+            print("Goodbye! 👋")
             break
+
+        # Map user choice to task_type
+        task_types = {
+            "1": "generate_code",
+            "2": "explain_code",
+            "3": "debug_code"
+        }
+
+        if choice not in task_types:
+            print("⚠️ Invalid choice, try again.")
+            continue
+
+        task_type = task_types[choice]
+        language = input("Enter language (e.g., Python, C++): ")
+
+        if task_type == "generate_code":
+            task = input("Describe the problem you want solved: ")
+        elif task_type == "explain_code":
+            print("Paste your code (end with a single line 'END'):")
+            lines = []
+            while True:
+                line = input()
+                if line.strip() == "END":
+                    break
+                lines.append(line)
+            task = "\n".join(lines)
+        elif task_type == "debug_code":
+            print("Paste your buggy code (end with a single line 'END'):")
+            lines = []
+            while True:
+                line = input()
+                if line.strip() == "END":
+                    break
+                lines.append(line)
+            code = "\n".join(lines)
+            desc = input("Briefly describe the issue: ")
+            task = f"Code:\n{code}\nIssue:\n{desc}"
+
+        # Send to backend
+        answer = ask_ai(task_type, language, task)
+
+        # Format output
+        print("\n===== AI Response =====")
+        if isinstance(answer, str):
+            print(answer)
+        else:
+            print(json.dumps(answer, indent=2))
+        print("=======================\n")
+
+if __name__ == "__main__":
+    main()
