@@ -59,7 +59,7 @@ def parse_intent(text):
 # Send intent to backend (real API)
 # ---------------------------
 def send_to_backend(intent_obj):
-    url = "http://localhost:5000/agent"   # Person A's backend endpoint
+    url = "http://127.0.0.1:8000/code-assistant"   # Person A's backend endpoint
     try:
         response = requests.post(url, json=intent_obj)
         return response.json()
@@ -110,3 +110,4 @@ def main():
 # ---------------------------
 if __name__ == "__main__":
     main()
+
