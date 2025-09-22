@@ -27,18 +27,18 @@ def rule_based_parser(text):
 # ---------------------------
 # LLM fallback parser (OpenAI)
 # ---------------------------
-client = OpenAI(api_key="YOUR_API_KEY")   # replace with your OpenAI key
+client = OpenAI(api_key="YOUR_API_KEY")  # replace with your OpenAI key
 
 def llm_fallback_parser(text):
     prompt = f"""
-    Classify the following request into one intent:
-    - create_function
-    - run_tests
-    - edit_function
-    - explain_code
+Classify the following request into one intent:
+- create_function
+- run_tests
+- edit_function
+- explain_code
 
-    Request: "{text}"
-    """
+Request: "{text}"
+"""
     response = client.chat.completions.create(
         model="gpt-4o-mini",
         messages=[{"role": "system", "content": prompt}]
@@ -59,7 +59,7 @@ def parse_intent(text):
 # Send intent to backend (real API)
 # ---------------------------
 def send_to_backend(intent_obj):
-    url = "http://127.0.0.1:8000/code-assistant"   # Person A's backend endpoint
+    url = "http://127.0.0.1:8000/code-assistant"  # Person A's backend endpoint
     try:
         response = requests.post(url, json=intent_obj)
         return response.json()
@@ -71,11 +71,11 @@ def send_to_backend(intent_obj):
 # ---------------------------
 def speak_text(text):
     engine = pyttsx3.init()
-    engine.setProperty('rate', 170)      # speech speed
-    engine.setProperty('volume', 1.0)    # max volume
+    engine.setProperty('rate', 170)
+    engine.setProperty('volume', 1.0)
     
     voices = engine.getProperty('voices')
-    engine.setProperty('voice', voices[0].id)  # usually male (voices[1] for female)
+    engine.setProperty('voice', voices[0].id)  # male voice (voices[1] for female)
     
     print("🎧 Speaking response...")
     engine.say(text)
@@ -85,24 +85,24 @@ def speak_text(text):
 # ASR with Whisper
 # ---------------------------
 def main():
-    # load whisper model
+    # Load Whisper model
     model = WhisperModel("small")
 
-    # transcribe audio
+    # Transcribe audio
     segments, info = model.transcribe("user_input.wav", beam_size=5)
     spoken_text = "".join(segment.text for segment in segments)
 
-    # parse intent
+    # Parse intent
     parsed = parse_intent(spoken_text)
 
     print("User said:", spoken_text)
     print("Intent:", parsed)
 
-    # send to backend
+    # Send to backend
     backend_response = send_to_backend(parsed)
     print("Backend says:", backend_response["message"])
 
-    # speak back result
+    # Speak back result
     speak_text(backend_response["message"])
 
 # ---------------------------
@@ -110,4 +110,3 @@ def main():
 # ---------------------------
 if __name__ == "__main__":
     main()
-
