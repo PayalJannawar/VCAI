@@ -8,6 +8,10 @@ class CodeRequest(BaseModel):
     language: str
     task: str
 
+@app.get("/")
+async def root():
+    return {"dir" : "root"}
+
 @app.post("/code-assistant")
 async def code_assistant(req: CodeRequest):
     return {

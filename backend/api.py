@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from pydantic import BaseModel
-from backend.base_llm import BaseLLM
-from backend.prompt_manager import PromptManager
+from base_llm import BaseLLM
+from prompt_manager import PromptManager
 
 app = FastAPI()
 llm = BaseLLM()
