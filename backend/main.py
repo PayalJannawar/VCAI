@@ -1,19 +1,69 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+import uvicorn
 
+# Import the service layer logic from base_llm.py
+from base_llm import get_ai_response
+
+# Initialize the FastAPI app
 app = FastAPI()
 
+# --- 4. Schema Validation (Pydantic Models) [cite: 7] ---
+
 class CodeRequest(BaseModel):
-    task_type: str
+    """
+    Defines the request schema for the /code-assistant endpoint.
+    """
+    intent: str
     language: str
     task: str
 
-@app.get("/")
-async def root():
-    return {"dir" : "root"}
+class CodeResponse(BaseModel):
+    """
+    Defines the response schema for the /code-assistant endpoint.
+    """
+    response: str
 
-@app.post("/code-assistant")
-async def code_assistant(req: CodeRequest):
-    return {
-        "response": f"Received task '{req.task}' in {req.language} for {req.task_type}"
-    }
+# --- 1. API Endpoints [cite: 7, 17] ---
+
+@app.get("/", summary="Health Check")
+def read_root():
+    """
+    Health check route.
+    """
+    return {"message": "Backend running successfully!"}
+
+
+@app.post("/code-assistant", response_model=CodeResponse, summary="Code Generation and Explanation")
+def code_assistant(request: CodeRequest):
+    """
+    Accepts task and language to generate or explain code.
+    
+    This endpoint:
+    1. Receives the request[cite: 5].
+    2. Calls the AI API (via the service layer)[cite: 5].
+    3. Returns a well-structured response[cite: 5].
+    """
+    
+    # --- 5. Error Handling [cite: 7] ---
+    try:
+        # Call the service layer to get the AI response
+        ai_generated_text = get_ai_response(
+            intent=request.intent,
+            language=request.language,
+            task=request.task
+        )
+        
+        if "Error:" in ai_generated_text:
+            # Handle fallback messages from the service layer 
+            raise HTTPException(status_code=503, detail=ai_generated_text)
+            
+        return CodeResponse(response=ai_generated_text)
+        
+    except Exception as e:
+        # Catch any other unexpected errors
+        raise HTTPException(status_code=500, detail=f"An internal server error occurred: {str(e)}")
+
+# --- Run the server (as specified in Tech Stack ) ---
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)
