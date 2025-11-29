@@ -1,48 +1,29 @@
 # integrate.py
 
-from speechtotext import get_detected_text  # Get voice as text
-from intent_recognizer import predict_intent  # Predict user intent
+from speechtotext import get_detected_text  # Your STT function
 import requests
 
 # -----------------------------
-# Send request to backend LLM
+# Send text to backend
 # -----------------------------
-def send_to_backend(task_type, language, task):
+def send_text_to_backend(user_text: str, intent="generate_code", language="Python"):
     """
-    Sends a structured command to the backend AI.
-    task_type: Intent detected (e.g., create_function, run_code)
-    language: Programming language (default: Python)
-    task: Original user command
+    Sends the detected text to your FastAPI backend.
     """
     API_URL = "http://127.0.0.1:8000/code-assistant"
-    payload = {"task_type": task_type, "language": language, "task": task}
+    payload = {
+        "intent": intent,
+        "language": language,
+        "task": user_text
+    }
     try:
-        resp = requests.post(API_URL, json=payload, timeout=5)
-        return resp.json().get("response", "No response from backend")
+        resp = requests.post(API_URL, json=payload, timeout=10)
+        if resp.status_code == 200:
+            return resp.json().get("response", "No response from backend")
+        else:
+            return f"Backend returned error {resp.status_code}: {resp.text}"
     except Exception as e:
-        return f" Backend not available: {e}"
-
-# -----------------------------
-# Process user text
-# -----------------------------
-def process_text(user_text):
-    """
-    Process the detected text:
-    1. Predict the intent
-    2. Send structured command to backend
-    """
-    print(f" User Text: {user_text}")
-
-    # Step 1: Predict intent
-    parsed_intent = predict_intent(user_text)
-    print(f" Parsed Intent: {parsed_intent}")
-
-    # Step 2: Send structured intent to backend
-    return send_to_backend(
-        task_type=parsed_intent["intent"],  # e.g., create_function, run_code
-        language="Python",                 # default language
-        task=user_text                      # original user command
-    )
+        return f"Backend not available: {e}"
 
 # -----------------------------
 # Main execution
@@ -50,9 +31,8 @@ def process_text(user_text):
 if __name__ == "__main__":
     # Step 1: Get detected text from speech
     detected_text = get_detected_text()
-    print(" Detected Text:\n", detected_text)
+    print("Detected Text:\n", detected_text)
 
-    # Step 2: Process text (predict intent + send to backend)
-    output = process_text(detected_text)
-    print("\n Backend Output:\n", output)
-
+    # Step 2: Send text to backend and get response
+    backend_response = send_text_to_backend(detected_text)
+    print("\nBackend Output:\n", backend_response)
