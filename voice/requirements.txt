@@ -1,13 +1,17 @@
 # STT (Speech-to-Text) Requirements
-numpy>=1.24.0
-sounddevice==0.4.6
-scipy
-faster-whisper
-torch
+sounddevice>=0.8.1
+scipy>=1.11.1
+numpy>=1.25.0
+librosa>=0.10.2
+noisereduce>=2.1.0
+soundfile>=0.12.1
+faster-whisper>=0.8.3
+torch>=2.2.0
 
 
 # TTS(text-to-speech) Requirements
 pyttsx3==2.90
+
 
 
 
