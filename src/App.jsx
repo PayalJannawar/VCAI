@@ -72,40 +72,51 @@ function App() {
     return <span>Your browser does not support speech recognition.</span>;
   }
 
-  // Mock backend
   const sendToBackend = async (codeText) => {
     setLoading(true);
     setStatusMessage("AI is running...");
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        const edited = codeText.split("\n").reverse().join("\n"); // dummy AI edit
-        const audioURL = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
-        resolve({ editedCode: edited, audioURL });
-        setLoading(false);
-        setStatusMessage("");
-      }, 1000);
+
+try {
+    const response = await fetch("http://127.0.0.1:8000/code-assistant", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        intent: "generate code",
+        language: "javascript",
+        task: codeText,
+      }),
     });
+
+    if (!response.ok) {
+      throw new Error("Backend returned an error.");
+    }
+
+    const data = await response.json();
+
+    return {
+      editedCode: data.response,
+      audioURL: null,
+    };
+  } catch (err) {
+    console.error(err);
+    alert("Failed to connect to backend.");
+    return {
+      editedCode: "Error connecting to backend.",
+      audioURL: null,
+    };
+  } finally {
+    setLoading(false);
+    setStatusMessage("");
+  }
   };
 
   const runAI = async () => {
     if (!code) return;
-    setLoading(true);
-    setStatusMessage("Running AI...");
     const result = await sendToBackend(code);
 
-    if (audioRef.current) audioRef.current.pause();
-
     setBackendResult(result.editedCode);
-
-    audioRef.current = new Audio(result.audioURL);
-    setAudioPlaying(true);
-    setStatusMessage("Playing audio...");
-    audioRef.current.play();
-    audioRef.current.onended = () => {
-      setAudioPlaying(false);
-      setStatusMessage("");
-    };
-    setLoading(false);
   };
 
   const toggleMic = () => {
