@@ -1,3 +1,4 @@
+
 import { useState, useEffect, useRef } from "react";
 import Editor from "@monaco-editor/react";
 import { Mic } from "lucide-react";
@@ -73,18 +74,61 @@ function App() {
   }
 
   const sendToBackend = async (codeText) => {
-    setLoading(true);
-    setStatusMessage("AI is running...");
+  setLoading(true);
+  setStatusMessage("AI is running...");
 
-try {
+  try {
+    const lower = codeText.toLowerCase();
+    
+    
+  let intent = "generate_code";
+
+  if (
+    lower.includes("explain") ||
+    lower.includes("what does") ||
+    lower.includes("how does")
+  ) {
+    intent = "explain_code";
+  }
+  else if (
+    lower.includes("debug") ||
+    lower.includes("fix") ||
+    lower.includes("error") ||
+    lower.includes("bug")
+  ) {
+    intent = "debug_code";
+  }
+  else if (
+    lower.includes("optimize") ||
+    lower.includes("improve") ||
+    lower.includes("faster")
+  ) {
+    intent = "optimize_code";
+  }
+  else if (
+    lower.includes("convert") ||
+    lower.includes("translate")
+  ) {
+    intent = "convert_code";
+  }
+
+    let language = "javascript";
+
+    if (lower.includes("python")) language = "python";
+    else if (lower.includes("java")) language = "java";
+    else if (lower.includes("cpp") || lower.includes("c++")) language = "cpp";
+    else if (lower.includes("c#")) language = "csharp";
+    else if (lower.includes("html")) language = "html";
+    else if (lower.includes("css")) language = "css";
+
     const response = await fetch("http://127.0.0.1:8000/code-assistant", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        intent: "generate code",
-        language: "javascript",
+        intent: intent,
+        language: language,
         task: codeText,
       }),
     });
@@ -102,6 +146,7 @@ try {
   } catch (err) {
     console.error(err);
     alert("Failed to connect to backend.");
+
     return {
       editedCode: "Error connecting to backend.",
       audioURL: null,
@@ -110,7 +155,7 @@ try {
     setLoading(false);
     setStatusMessage("");
   }
-  };
+};
 
   const runAI = async () => {
     if (!code) return;

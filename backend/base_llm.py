@@ -24,14 +24,76 @@ def get_ai_response(intent: str, language: str, task: str) -> str:
     # This is a simple prompt based on the API request.
     # You can make this more complex as needed.
     if intent == "generate_code":
-        prompt = f"Generate a code snippet in {language} for the following task: {task}"
+        prompt = f"""
+You are an expert software engineer.
+
+Return ONLY executable {language} code.
+
+Do NOT explain.
+Do NOT use markdown.
+Do NOT use ```.
+
+Task:
+{task}
+"""
+
     elif intent == "explain_code":
-        prompt = f"Explain the following {language} code: {task}"
+        prompt = f"""
+You are an expert programming teacher.
+
+Explain the following {language} code in simple language.
+
+Code:
+{task}
+"""
+
+    elif intent == "debug_code":
+        prompt = f"""
+You are an expert debugger.
+
+Find the bug in the following {language} code.
+
+Explain the bug briefly.
+
+Then provide the corrected code.
+
+Code:
+{task}
+"""
+
+    elif intent == "optimize_code":
+        prompt = f"""
+You are an expert software engineer.
+
+Optimize the following {language} code.
+
+Improve readability, efficiency and best practices.
+
+Return only the improved code.
+
+Code:
+{task}
+"""
+
+    elif intent == "convert_code":
+        prompt = f"""
+Convert the following code to {language}.
+
+Return only the converted code.
+
+Code:
+{task}
+"""
+
     else:
-        prompt = f"You are a helpful coding assistant. Respond to the following request: {task}"
+        prompt = f"""
+You are an expert coding assistant.
 
-    print(f"DEBUG: Sending prompt to Gemini: {prompt}")
-
+{task}
+"""
+    print(f"DEBUG: Sending prompt to Gemini:\n{prompt}")
+    
+    
     # --- 2. Gemini API Integration  ---
     try:
         response = model.generate_content(prompt)
