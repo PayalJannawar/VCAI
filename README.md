@@ -67,3 +67,27 @@ The application follows a client-server architecture where the React frontend ha
 6. The AI-generated response is returned to the frontend.
 7. Generated code is displayed inside the **Monaco Editor**, while the conversation is maintained in the Assistant panel.
 8. Chat history is stored locally using **Local Storage**.
+
+## 📸 Application Screenshots
+
+### 🏠 Home Interface
+
+![Home](assets/home.png)
+
+---
+
+### 💻 Monaco Code Editor
+
+![Editor](assets/editor.png)
+
+---
+
+### 🤖 AI Assistant Panel
+
+![Assistant](assets/assistant.png)
+
+---
+
+### 📂 Chat History
+
+![Sidebar](assets/sidebar.png)
