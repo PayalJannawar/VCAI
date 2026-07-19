@@ -135,3 +135,50 @@ Open your browser and visit:
 ```
 http://localhost:5173
 ```
+
+## 📂 Project Structure
+
+```text
+Voice-Coding-Assistant/
+│
+├── assets/                     # README screenshots
+│
+├── backend/
+│   ├── main.py                 # FastAPI backend
+│   ├── base_llm.py             # Gemini API integration
+│   ├── requirements.txt
+│   └── .env
+│
+├── frontend/
+│   ├── public/
+│   │   └── vite.svg
+│   │
+│   ├── src/
+│   │   ├── components/
+│   │   │   ├── Navbar.jsx
+│   │   │   ├── Sidebar.jsx
+│   │   │   ├── EditorPanel.jsx
+│   │   │   ├── ConsolePanel.jsx
+│   │   │   └── ControlButtons.jsx
+│   │   │
+│   │   ├── pages/
+│   │   │   └── Home.jsx
+│   │   │
+│   │   ├── styles/
+│   │   │   ├── navbar.css
+│   │   │   ├── sidebar.css
+│   │   │   ├── editor.css
+│   │   │   ├── console.css
+│   │   │   ├── layout.css
+│   │   │   └── buttons.css
+│   │   │
+│   │   ├── App.jsx
+│   │   ├── App.css
+│   │   ├── main.jsx
+│   │   └── index.css
+│   │
+│   ├── package.json
+│   └── vite.config.js
+│
+└── README.md
+```
