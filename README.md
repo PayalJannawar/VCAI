@@ -206,3 +206,7 @@ The following enhancements are planned for future versions of the project:
 - 🐛 Advanced debugging and automated code review.
 - 📊 AI-powered code quality analysis and performance suggestions.
 - 🌍 Support for additional programming languages and frameworks.
+
+## ⭐ Acknowledgements
+
+This project was developed as part of my learning journey to explore AI-assisted software development, voice interfaces, and modern web technologies. It demonstrates the integration of React, FastAPI, Google Gemini, and Monaco Editor to create an interactive coding assistant.
