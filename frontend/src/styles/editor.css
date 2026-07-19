@@ -1,0 +1,37 @@
+.editor-panel{
+
+    display:flex;
+
+    flex-direction:column;
+
+    height:100%;
+}
+
+.editor-panel h2{
+
+    padding:18px 20px;
+
+    font-size:30px;
+
+    font-weight:700;
+}
+
+.editor-wrapper{
+
+    flex:1;
+
+    overflow:hidden;
+
+    padding:0 18px;
+}
+
+.button-group{
+
+    padding:18px;
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:14px;
+}

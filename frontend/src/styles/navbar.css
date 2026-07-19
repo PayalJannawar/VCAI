@@ -1,0 +1,94 @@
+.navbar{
+
+    height:70px;
+
+    background:#111827;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:0 30px;
+
+    border-bottom:1px solid #334155;
+}
+
+.navbar-left{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:15px;
+}
+
+.logo{
+
+    font-size:30px;
+}
+
+.navbar h2{
+
+    color:white;
+
+    font-size:30px;
+
+    font-weight:700;
+}
+
+.navbar-right{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:20px;
+}
+
+.status{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:10px;
+
+    color:#d1d5db;
+
+    font-size:15px;
+}
+
+.status-dot{
+
+    width:10px;
+
+    height:10px;
+
+    border-radius:50%;
+
+    background:#22c55e;
+}
+
+.launch-btn{
+
+    background:#7c3aed;
+
+    color:white;
+
+    border:none;
+
+    padding:12px 22px;
+
+    border-radius:10px;
+
+    font-size:15px;
+
+    font-weight:600;
+}
+
+.launch-btn:hover{
+
+    background:#6d28d9;
+}

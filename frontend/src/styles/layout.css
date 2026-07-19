@@ -1,0 +1,27 @@
+.main-layout{
+    display:grid;
+
+    grid-template-columns:20% 45% 35%;
+
+    gap:18px;
+
+    padding:18px;
+
+    height:calc(100vh - 82px);
+
+    box-sizing:border-box;
+}
+
+.card{
+    background:#1e293b;
+
+    border-radius:16px;
+
+    overflow:hidden;
+
+    display:flex;
+
+    flex-direction:column;
+
+    min-height:0;
+}

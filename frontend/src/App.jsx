@@ -1,73 +1,31 @@
-
+import Home from "./pages/Home";
 import { useState, useEffect, useRef } from "react";
-import Editor from "@monaco-editor/react";
-import { Mic } from "lucide-react";
 import SpeechRecognition, { useSpeechRecognition } from "react-speech-recognition";
-import ReactDiffViewer from "react-diff-viewer";
 
-// Editor panel
-function EditorPanel({ code, setCode }) {
-  return (
-    <Editor
-      height="300px"
-      defaultLanguage="javascript"
-      value={code}
-      onChange={(value) => setCode(value || "")}
-      theme="vs-dark"
-    />
-  );
-}
-
-// Mic controls
-function MicControls({ listening, toggleMic }) {
-  return (
-    <button
-      onClick={toggleMic}
-      className={`px-4 py-2 rounded flex items-center gap-2 ${
-        listening ? "bg-red-500 hover:bg-red-600" : "bg-green-500 hover:bg-green-600"
-      } text-white`}
-    >
-      <Mic size={18} />
-      {listening ? "Stop" : "Speak"}
-    </button>
-  );
-}
-
-// Transcript panel
-function TranscriptPanel({ transcript }) {
-  return (
-    <div className="mt-4">
-      <h2 className="font-semibold">Transcript:</h2>
-      <p className="bg-gray-100 p-2 rounded min-h-[40px] overflow-auto">
-        {transcript || "Say something..."}
-      </p>
-    </div>
-  );
-}
-
-// Diff panel
-function DiffPanel({ oldCode, newCode }) {
-  return (
-    <div className="mt-4">
-      <h2 className="font-semibold">AI Output (Diff View):</h2>
-      <div className="bg-gray-100 p-2 rounded min-h-[100px] overflow-auto">
-        <ReactDiffViewer oldValue={oldCode} newValue={newCode} splitView={true} />
-      </div>
-    </div>
-  );
-}
 
 function App() {
   const [code, setCode] = useState("// Write your code here");
   const [backendResult, setBackendResult] = useState("// AI output will appear here");
   const [listening, setListening] = useState(false);
-  const [audioPlaying, setAudioPlaying] = useState(false);
   const [loading, setLoading] = useState(false);
   const [statusMessage, setStatusMessage] = useState("");
+  const [intent, setIntent] = useState("");
+  const [language, setLanguage] = useState("");
+  const [status, setStatus] = useState("Idle");
+  const [backendConnected, setBackendConnected] = useState(true);
 
-  const audioRef = useRef(null);
   const { transcript, resetTranscript } = useSpeechRecognition();
   const lastTranscriptRef = useRef("");
+  const [userInput, setUserInput] = useState("");
+  const [chatHistory, setChatHistory] = useState([]);
+
+  const [currentChatId, setCurrentChatId] = useState(null);
+  const [messages, setMessages] = useState([
+    {
+      sender: "ai",
+      text: "Hello! I'm your Voice Coding Assistant. How can I help you today?",
+    },
+  ]);
 
   if (!SpeechRecognition.browserSupportsSpeechRecognition()) {
     return <span>Your browser does not support speech recognition.</span>;
@@ -76,6 +34,7 @@ function App() {
   const sendToBackend = async (codeText) => {
   setLoading(true);
   setStatusMessage("AI is running...");
+
 
   try {
     const lower = codeText.toLowerCase();
@@ -121,6 +80,10 @@ function App() {
     else if (lower.includes("html")) language = "html";
     else if (lower.includes("css")) language = "css";
 
+    setIntent(intent);
+    setLanguage(language);
+    setStatus("Generating...");
+
     const response = await fetch("http://127.0.0.1:8000/code-assistant", {
       method: "POST",
       headers: {
@@ -138,6 +101,8 @@ function App() {
     }
 
     const data = await response.json();
+    setBackendConnected(true);
+    setStatus("Completed");
 
     return {
       editedCode: data.response,
@@ -145,6 +110,8 @@ function App() {
     };
   } catch (err) {
     console.error(err);
+    setStatus("Failed");
+    setBackendConnected(false);
     alert("Failed to connect to backend.");
 
     return {
@@ -156,79 +123,238 @@ function App() {
     setStatusMessage("");
   }
 };
+function cleanTranscript(text) {
+  return text
+    .replace(/\b(uh|um|okay|ok|stop)\b/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+}   
 
-  const runAI = async () => {
-    if (!code) return;
-    const result = await sendToBackend(code);
+const runAI = async () => {
+  const input = cleanTranscript(
+    userInput.trim() || transcript.trim() || code.trim()
+  );
+  if (!input) return;
 
-    setBackendResult(result.editedCode);
-  };
+  // Add user's message to the chat
+  setMessages((prev) => [
+    ...prev,
+    {
+      sender: "user",
+      text: input,
+    },
+  ]);
+
+  const result = await sendToBackend(input);
+
+  // Update the editor
+  setBackendResult(result.editedCode);
+  setCode(result.editedCode);
+  setUserInput("");
+
+  // Add AI response to the chat
+  setMessages((prev) => [
+    ...prev,
+    {
+      sender: "ai",
+      text: "Done! I've updated the editor with the generated code.",
+    },
+  ]);
+};
 
   const toggleMic = () => {
-    if (listening) {
-      SpeechRecognition.stopListening();
-      setListening(false);
-      setStatusMessage("");
-    } else {
-      if (audioRef.current && audioPlaying) {
-        audioRef.current.pause();
-        setAudioPlaying(false);
-      }
-      resetTranscript();
-      lastTranscriptRef.current = "";
-      SpeechRecognition.startListening({ continuous: true, language: "en-US" });
-      setListening(true);
-      setStatusMessage("Listening...");
-    }
-  };
+  if (listening) {
+    SpeechRecognition.stopListening();
+    setListening(false);
+    setStatusMessage("Processing...");
+    return;
+  }
+
+  resetTranscript();
+
+  SpeechRecognition.startListening({
+    continuous: false,
+    language: "en-US",
+  });
+
+  setListening(true);
+  setStatusMessage("Listening...");
+};
+  const copyCode = () => {
+  navigator.clipboard.writeText(code);
+  alert("Code copied!");
+};
+
+const clearAll = () => {
+  setCode("// Write your code here");
+  setBackendResult("");
+  resetTranscript();
+  setIntent("");
+  setLanguage("");
+  setStatus("Idle");
+
+  setMessages([
+    {
+      sender: "ai",
+      text: "Hello! I'm your Voice Coding Assistant. How can I help you today?",
+    },
+  ]);
+};
+
+const newChat = () => {
+
+    const id = crypto.randomUUID();
+
+    setCurrentChatId(id);
+
+    setMessages([
+        {
+            sender: "ai",
+            text: "Hello! I'm your Voice Coding Assistant. How can I help you today?",
+        },
+    ]);
+
+    setCode("// Write your code here");
+
+    setUserInput("");
+
+    resetTranscript();
+
+    setIntent("");
+
+    setLanguage("");
+
+    setStatus("Idle");
+};
 
   // Live dictation: append new speech lines to editor
   useEffect(() => {
-    if (!transcript) return;
+  if (!transcript) return;
 
-    // Detect new words since last update
-    const newPart = transcript.replace(lastTranscriptRef.current, "").trim();
-    if (newPart) {
-      setCode((prev) => (prev === "// Write your code here" ? newPart : prev + "\n" + newPart));
-      lastTranscriptRef.current = transcript;
-    }
-
-    if (transcript.toLowerCase().includes("run code")) {
-      runAI();
-      resetTranscript();
-      lastTranscriptRef.current = "";
-    }
+  // Just remember the latest transcript.
+  lastTranscriptRef.current = transcript;
   }, [transcript]);
 
-  return (
-    <div className="flex flex-col items-center p-4 min-h-screen bg-gray-100">
-      <h1 className="text-2xl font-bold mb-4">Voice Coding Assistant</h1>
+  useEffect(() => {
+  if (!SpeechRecognition.listening && listening) {
+    setListening(false);
 
-      <div className="w-full max-w-4xl bg-white rounded-xl shadow-lg p-4">
-        <EditorPanel code={code} setCode={setCode} />
+    if (transcript.trim()) {
+      setUserInput(transcript);
+    }
+  }
+}, [transcript, listening]);
 
-        <div className="flex gap-2 mt-4">
-          <button
-            onClick={runAI}
-            disabled={loading}
-            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:opacity-50"
-          >
-            Run AI
-          </button>
+  useEffect(() => {
+    if (!SpeechRecognition.listening && listening) {
+      setListening(false);
+    }
+  }, [listening]);
 
-          <MicControls listening={listening} toggleMic={toggleMic} />
-        </div>
-
-        {statusMessage && (
-          <p className="mt-2 text-sm font-medium text-gray-700">{statusMessage}</p>
-        )}
-
-        <TranscriptPanel transcript={transcript} />
-        <DiffPanel oldCode={code} newCode={backendResult} />
-      </div>
-    </div>
+  useEffect(() => {
+  localStorage.setItem(
+    "vcai-chat-history",
+    JSON.stringify(chatHistory)
   );
-}
+}, [chatHistory]);
+
+ useEffect(() => {
+
+  const savedChats = localStorage.getItem("vcai-chat-history");
+
+  if (savedChats) {
+
+    const chats = JSON.parse(savedChats);
+
+    setChatHistory(chats);
+
+    if (chats.length > 0) {
+
+      const latest = chats[chats.length - 1];
+
+      setCurrentChatId(latest.id);
+
+      setMessages(latest.messages);
+
+      setCode(latest.code);
+    }
+
+  }
+
+}, []);
+
+ useEffect(() => {
+  if (!currentChatId) return;
+
+  const firstUserMessage = messages.find(
+    (m) => m.sender === "user"
+  );
+
+  if (!firstUserMessage) return;
+
+  setChatHistory((prev) => {
+
+    const index = prev.findIndex(
+      (chat) => chat.id === currentChatId
+    );
+
+    // Chat already exists → update it
+    if (index !== -1) {
+
+      const updated = [...prev];
+
+      updated[index] = {
+        ...updated[index],
+        title: firstUserMessage.text,
+        messages,
+        code,
+      };
+
+      return updated;
+    }
+
+    // New chat → create it
+    return [
+      ...prev,
+      {
+        id: currentChatId,
+        title: firstUserMessage.text,
+        messages,
+        code,
+      },
+    ];
+  });
+
+}, [messages, code, currentChatId]);
+
+ return (
+  <Home
+    code={code}
+    setCode={setCode}
+    transcript={transcript}
+    backendResult={backendResult}
+    statusMessage={statusMessage}
+    loading={loading}
+    listening={listening}
+    runAI={runAI}
+    toggleMic={toggleMic}
+    intent={intent}
+    language={language}
+    status={status}
+    backendConnected={backendConnected}
+    copyCode={copyCode}
+    clearAll={clearAll}
+    messages={messages}
+    userInput={userInput}
+    setUserInput={setUserInput}
+    chatHistory={chatHistory}
+    newChat={newChat}
+    setMessages={setMessages}
+    setCode={setCode}
+    setCurrentChatId={setCurrentChatId}
+  />
+);
+}   // <-- This closing brace is missing
 
 export default App;
 

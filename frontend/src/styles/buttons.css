@@ -1,0 +1,64 @@
+.button-group{
+
+    display:flex;
+
+    justify-content:center;
+
+    gap:20px;
+
+    margin-top:15px;
+}
+
+.button-group button{
+
+    border:none;
+
+    padding:14px 26px;
+
+    border-radius:10px;
+
+    font-size:16px;
+
+    font-weight:600;
+
+    color:white;
+
+    cursor:pointer;
+
+    transition:.3s;
+}
+
+.generate-btn{
+
+    background:#7c3aed;
+}
+
+.generate-btn:hover{
+
+    background:#6d28d9;
+}
+
+.speak-btn{
+
+    background:#16a34a;
+}
+
+.speak-btn:hover{
+
+    background:#15803d;
+}
+
+.stop-btn{
+
+    background:#dc2626;
+}
+
+.copy-btn{
+
+    background:#2563eb;
+}
+
+.clear-btn{
+
+    background:#475569;
+}
