@@ -194,3 +194,15 @@ Voice-Coding-Assistant/
 7. Generated code is displayed inside the **Monaco Code Editor**.
 8. The conversation is shown in the **Assistant Panel**.
 9. Chat history is stored locally using **Local Storage**, allowing previous coding sessions to be restored.
+
+## 🚀 Future Scope
+
+The following enhancements are planned for future versions of the project:
+
+- 🔐 User authentication and cloud-based chat synchronization.
+- 📁 Project and file management support.
+- 🧠 Context-aware AI capable of understanding multiple source files.
+- ▶️ Code execution and output preview within the application.
+- 🐛 Advanced debugging and automated code review.
+- 📊 AI-powered code quality analysis and performance suggestions.
+- 🌍 Support for additional programming languages and frameworks.
