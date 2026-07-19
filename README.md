@@ -91,3 +91,47 @@ The application follows a client-server architecture where the React frontend ha
 ### 📂 Chat History
 
 ![Sidebar](assets/sidebar.png)
+
+## ⚙️ Installation
+
+### 1️⃣ Clone the Repository
+
+```bash
+git clone https://github.com/PayalJannawar/VCAI.git
+cd Voice-Coding-Assistant
+```
+
+### 2️⃣ Backend Setup
+
+```bash
+cd backend
+
+python -m venv venv
+
+# Windows
+venv\Scripts\activate
+
+pip install -r requirements.txt
+
+uvicorn main:app --reload
+```
+
+### 3️⃣ Frontend Setup
+
+Open a new terminal.
+
+```bash
+cd frontend
+
+npm install --legacy-peer-deps
+
+npm run dev
+```
+
+### 4️⃣ Open the Application
+
+Open your browser and visit:
+
+```
+http://localhost:5173
+```
