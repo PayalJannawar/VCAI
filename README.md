@@ -8,3 +8,47 @@ An AI-powered **Voice Coding Assistant** that enables developers to generate cod
 ### Home Screen
 
 ![Home](assets/home.png)
+
+## 📖 Project Overview
+
+Voice Coding Assistant (VCAI) is an AI-powered coding assistant that enables developers to interact with AI using both **voice** and **text commands**. The application combines an interactive **Monaco Code Editor** with an AI-powered assistant to help users generate, debug, optimize, convert, and explain code efficiently.
+
+The frontend is built with **React**, while the backend uses **FastAPI** to communicate with the **Google Gemini API**. Speech recognition enables hands-free interaction, and chat history is stored locally to provide a seamless coding experience across browser sessions.
+
+## ✨ Features
+
+- 🎤 Voice-based code generation using browser Speech Recognition
+- 💬 AI-powered text chat interface
+- 📝 Monaco Code Editor integration
+- 🤖 AI-assisted code generation
+- 🐞 Code debugging assistance
+- ⚡ Code optimization
+- 🔄 Programming language conversion
+- 📚 Code explanation
+- 💾 Persistent chat history using Local Storage
+- 📋 Copy generated code
+- 🗑 Clear editor and start a new conversation
+- 🌐 Multi-language support (C++, Java, Python, JavaScript, HTML, CSS)
+- 🔌 FastAPI backend with Google Gemini integration
+
+## 🛠️ Tech Stack
+
+### Frontend
+- React
+- JavaScript (ES6+)
+- CSS3
+- Monaco Editor
+- react-speech-recognition
+
+### Backend
+- FastAPI
+- Python
+- Google Gemini API
+
+### Storage
+- Browser Local Storage
+
+### Development Tools
+- Git
+- GitHub
+- Visual Studio Code
