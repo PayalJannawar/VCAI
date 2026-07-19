@@ -57,6 +57,10 @@ The frontend is built with **React**, while the backend uses **FastAPI** to comm
 
 The application follows a client-server architecture where the React frontend handles user interactions and the FastAPI backend processes AI requests.
 
+The following diagram illustrates the overall architecture and workflow of the Voice Coding Assistant.
+
+![Architecture](assets/architecture.png)
+
 ### Workflow
 
 1. User provides input through **voice** or **text**.
