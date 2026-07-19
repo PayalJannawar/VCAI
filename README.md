@@ -52,3 +52,18 @@ The frontend is built with **React**, while the backend uses **FastAPI** to comm
 - Git
 - GitHub
 - Visual Studio Code
+
+## 🏗️ Project Architecture
+
+The application follows a client-server architecture where the React frontend handles user interactions and the FastAPI backend processes AI requests.
+
+### Workflow
+
+1. User provides input through **voice** or **text**.
+2. Speech input is converted into text using **Browser Speech Recognition**.
+3. The frontend detects the user's intent (Generate, Explain, Debug, Optimize, Convert).
+4. A request is sent to the **FastAPI** backend.
+5. The backend communicates with the **Google Gemini API**.
+6. The AI-generated response is returned to the frontend.
+7. Generated code is displayed inside the **Monaco Editor**, while the conversation is maintained in the Assistant panel.
+8. Chat history is stored locally using **Local Storage**.
