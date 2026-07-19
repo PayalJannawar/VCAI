@@ -182,3 +182,15 @@ Voice-Coding-Assistant/
 │
 └── README.md
 ```
+
+## 🔄 Application Workflow
+
+1. The user provides a coding request using **voice** or **text**.
+2. Voice input is converted into text using the browser's **Speech Recognition API**.
+3. The frontend analyzes the request and identifies the appropriate **intent** (Generate, Explain, Debug, Optimize, or Convert).
+4. The request is sent to the **FastAPI backend**.
+5. The backend forwards the request to the **Google Gemini API** for AI processing.
+6. The AI-generated response is returned to the frontend.
+7. Generated code is displayed inside the **Monaco Code Editor**.
+8. The conversation is shown in the **Assistant Panel**.
+9. Chat history is stored locally using **Local Storage**, allowing previous coding sessions to be restored.
